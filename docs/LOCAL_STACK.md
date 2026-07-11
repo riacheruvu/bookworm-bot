@@ -2,12 +2,16 @@
 
 Bookworm Bot is designed to be **stingy-friendly**. Default path costs **$0**.
 
+For **page photos and multimodal reading**, see the full guide: **[READING.md](READING.md)**.
+
 ## What works today with zero keys
 
 ```bash
 pip install -e ".[dev]"
+bookworm doctor              # mock + optional Ollama checks
 bookworm run                 # mock student
 bookworm run -m exploratory  # still free
+bookworm ingest-pages examples/sample_page_photo --backend mock
 pytest                       # free
 ```
 
@@ -27,73 +31,63 @@ hints absorbed from local textbook files. That is enough to:
 
 | Tier | Cost | What you get | How |
 |------|------|--------------|-----|
-| **0 – Mock** | $0 | Full loop, deterministic demos | default |
-| **1 – Ollama** | $0 (your GPU/CPU) | Real LLM answers from local model | `bookworm run --backend ollama` |
-| **2 – Local OCR** | $0 | Text from page photos | Tesseract / EasyOCR (Phase 1) |
-| **3 – Local VLM** | $0 | Diagrams + layout from photos | Ollama vision models (Phase 1+) |
-| **4 – Local LoRA** | $0 (electricity) | Adapter FT on your machine | Unsloth / PEFT later |
+| **0 – Mock student** | $0 | Full loop, deterministic demos | `bookworm run` (default) |
+| **1 – Ollama text** | $0 (your GPU/CPU) | Real LLM answers | `bookworm run --backend ollama` |
+| **2 – Mock vision** | $0 | Photos + sidecar `.md` | `ingest-pages --backend mock` |
+| **3 – Ollama vision** | $0 | Local multimodal page reading | `ingest-pages --backend ollama` |
+| **4 – Local LoRA** | $0 (electricity) | Adapter FT on your machine | later (Unsloth / PEFT) |
 
 Paid APIs are **optional convenience**, never required.
 
 ---
 
-## Ollama (recommended free “real student”)
+## Ollama (text student)
 
 1. Install [Ollama](https://ollama.com/) (free, local).
-2. Pull a small model, e.g.:
+2. Pull a small **text** model:
 
    ```bash
-   ollama pull llama3.2
-   # or smaller: ollama pull qwen2.5:0.5b
+   ollama pull smollm2:360m
+   # or: ollama pull qwen2.5:0.5b / llama3.2
    ```
 
-3. Run Bookworm against it:
+3. Run:
 
    ```bash
-   bookworm doctor              # checks mock + ollama reachability
+   bookworm doctor
    bookworm run --backend ollama
-   # optional:
-   set BOOKWORM_OLLAMA_MODEL=llama3.2
-   set BOOKWORM_OLLAMA_HOST=http://127.0.0.1:11434
    ```
 
-If Ollama is down, the CLI fails clearly (or use `--backend mock`).
+### Environment variables
 
-No account. No credit card. Models stay on disk.
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `BOOKWORM_OLLAMA_HOST` | Ollama URL | `http://127.0.0.1:11434` |
+| `BOOKWORM_OLLAMA_MODEL` | Text student | auto-pick small installed model |
+| `BOOKWORM_OLLAMA_VISION_MODEL` | Page VLM | auto-pick vision model / `moondream` |
+
+```bash
+# Windows PowerShell
+$env:BOOKWORM_OLLAMA_MODEL = "qwen3:0.6b"
+$env:BOOKWORM_OLLAMA_VISION_MODEL = "moondream"
+
+# macOS / Linux
+export BOOKWORM_OLLAMA_MODEL=qwen3:0.6b
+export BOOKWORM_OLLAMA_VISION_MODEL=moondream
+```
 
 ---
 
-## Page photos without cloud vision
-
-Phase 1 preference order:
-
-1. **Hand-typed / markdown pages** (already supported) — best quality/$  
-2. **Mock vision** — image + sidecar `.md` / `.txt` next to the photo  
-3. **Ollama vision** (`moondream`, `llava`, etc.) — free, offline multimodal  
-4. Tesseract / cloud VLMs — optional later  
-
-### Ingest page photos
+## Ollama (vision / page photos)
 
 ```bash
-# Offline: uses demo_fbd.md next to demo_fbd.png
-bookworm ingest-pages examples/sample_page_photo --backend mock
-
-# Local multimodal LLM
 ollama pull moondream
-bookworm doctor   # should show ollama vision ✓
-bookworm ingest-pages examples/sample_page_photo --backend ollama \
-  --skills free_body --hint "intro mechanics free-body diagrams"
-
-# During a learning run, re-read image_path pages with vision:
-bookworm run --vision mock
+bookworm doctor   # ollama vision ✓
+bookworm ingest-pages ./photos --backend ollama --skills free_body
 bookworm run --vision ollama
 ```
 
-Env override:
-
-```bash
-set BOOKWORM_OLLAMA_VISION_MODEL=moondream
-```
+Details, file layout, and troubleshooting: **[READING.md](READING.md)**.
 
 ---
 
@@ -103,7 +97,7 @@ When we get there:
 
 - Prefer **memory / notes** over weight updates  
 - If FT: small **LoRA** on a 1–3B local model, only if held-out probes improve  
-- Export datasets from sessions (JSONL) so training can happen on a free Colab GPU *if you choose* — still optional  
+- Export datasets from sessions (JSONL) — free Colab GPU optional, never required  
 
 ---
 

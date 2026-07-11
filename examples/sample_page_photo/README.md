@@ -1,10 +1,15 @@
 # Sample page photos
 
-Drop phone photos or screenshots of textbook pages here, then:
+Tiny demo assets for `bookworm ingest-pages`.
+
+| File | Role |
+|------|------|
+| `demo_fbd.png` | Placeholder image (swap for a real page photo) |
+| `demo_fbd.md` | Sidecar text for `--backend mock` |
 
 ```bash
-# Offline mock (uses matching .md sidecars if present)
-bookworm ingest-pages examples/sample_page_photo --backend mock -d mechanics_demo
+# Offline mock (uses demo_fbd.md next to the PNG)
+bookworm ingest-pages examples/sample_page_photo --backend mock -d mechanics_demo --skills free_body
 
 # Local multimodal LLM (free via Ollama)
 ollama pull moondream
@@ -12,4 +17,6 @@ bookworm ingest-pages examples/sample_page_photo --backend ollama -d mechanics_d
   --skills free_body,newtons_2nd
 ```
 
-Supported: `.png` `.jpg` `.jpeg` `.webp` `.gif` `.bmp`
+**Full documentation:** [docs/READING.md](../../docs/READING.md)
+
+Supported images: `.png` `.jpg` `.jpeg` `.webp` `.gif` `.bmp`

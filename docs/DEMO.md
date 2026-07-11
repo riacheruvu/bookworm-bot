@@ -109,7 +109,19 @@ bookworm run -m exploratory --probe-limit 4
 
 > “When we’re exploring, probes can go soft and the agent can invent variants. Serious mode is for measurement; exploratory is for curiosity.”
 
-### Beat 5 — Open the hood (30s)
+### Beat 5 — Page photos (45s)
+
+```bash
+bookworm ingest-pages examples/sample_page_photo --backend mock --skills free_body
+# if moondream (or other vision model) is installed:
+# bookworm ingest-pages ./photos --backend ollama --skills free_body
+```
+
+> “Physical books are mocked with photos. Mock vision uses a text sidecar; Ollama vision is a free local multimodal model. Same notes feed the study loop.”
+
+(See [READING.md](READING.md).)
+
+### Beat 6 — Open the hood (30s)
 
 Show quickly:
 
@@ -119,9 +131,9 @@ Show quickly:
 
 > “Swap in your own domain by copying this folder. Your book, your probes, same loop.”
 
-### Beat 6 — Close (15s)
+### Beat 7 — Close (15s)
 
-> “Next: real page photos with local OCR, then maybe a desk robot that *looks* at the book. But the science is already here: **did the right reading fix the right failures?**”
+> “Next: better memory and maybe a desk robot that *looks* at the book. But the science is already here: **did the right reading fix the right failures?**”
 
 ---
 

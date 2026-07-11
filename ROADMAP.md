@@ -16,7 +16,8 @@ probe → diagnose gaps → study pages → practice → evaluate
 2. **Ollama** — free local LLM when you want real answers  
 3. **Local OCR / VLM** — Tesseract, Ollama vision, etc.  
 
-Cloud APIs are optional power-user extras only. Details: [docs/LOCAL_STACK.md](docs/LOCAL_STACK.md).
+Cloud APIs are optional power-user extras only.  
+Details: [docs/LOCAL_STACK.md](docs/LOCAL_STACK.md) · page photos: [docs/READING.md](docs/READING.md).
 
 ---
 

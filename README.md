@@ -7,7 +7,14 @@
 > **Thesis:** Can an AI agent improve on a held-out skill suite by (1) failing probes, (2) selecting pages from a physical-style textbook (images/text mocks), (3) converting reading into practice, and (4) optionally adapting later (LoRA / memory) — without unrestricted web fine-tuning?
 
 **Repo:** https://github.com/riacheruvu/bookworm-bot  
-**Scope & phases:** [ROADMAP.md](ROADMAP.md) · **$0 / no API keys:** [docs/LOCAL_STACK.md](docs/LOCAL_STACK.md) · **Demo copy:** [docs/DEMO.md](docs/DEMO.md)
+
+| Docs | |
+|------|--|
+| [docs/README.md](docs/README.md) | Doc index |
+| [docs/READING.md](docs/READING.md) | **Page photos & local multimodal ingest** |
+| [docs/LOCAL_STACK.md](docs/LOCAL_STACK.md) | $0 / no API keys stack |
+| [docs/DEMO.md](docs/DEMO.md) | Pitch & live demo script |
+| [ROADMAP.md](ROADMAP.md) | Plan & phases |
 
 > **Stingy by design.** Default `mock` backend needs nothing. Optional free upgrade: local [Ollama](https://ollama.com). Paid cloud keys are never required.
 
@@ -87,13 +94,14 @@ bookworm-bot/
 │   ├── agents/          # StudentAgent (mock now; swap in LLMs later)
 │   ├── core/            # probe, gaps, study, practice, eval, full loop
 │   ├── models/          # Skill graph, probes, sessions
-│   ├── reading/         # Page library / OCR-VLM mock
+│   ├── reading/         # Page library, ingest, local VLM
 │   ├── envs/            # Phase 3 stubs (dynamic sims, Reachy Mini)
 │   └── cli.py
 ├── data/domains/
 │   └── mechanics_demo/  # skills + probes + mock textbook pages
 ├── data/sessions/       # saved run JSON (gitignored contents)
-├── examples/
+├── docs/                # READING, LOCAL_STACK, DEMO
+├── examples/sample_page_photo/
 └── tests/
 ```
 
@@ -103,10 +111,10 @@ bookworm-bot/
 
 | Phase | Goal | Status in repo |
 |-------|------|----------------|
-| **0 – Scaffold** | Runnable loop + demo domain + $0 backends | ✅ you are here |
-| **1 – Real reading** | Page images → local OCR/VLM → notes | hooks ready (`Page.image_path`) |
-| **2 – Better students** | Ollama/mock, memory, optional local LoRA | `mock` + `ollama` backends |
-| **3 – Dynamic envs** | Parametric sims from skill gaps | `src/bookworm/envs/` |
+| **0 – Scaffold** | Runnable loop + demo domain + $0 backends | ✅ done |
+| **1 – Real reading** | Page images → local VLM / mock → notes | ✅ `ingest-pages` + `--vision` ([docs/READING.md](docs/READING.md)) |
+| **2 – Better students** | Ollama/mock, memory, optional local LoRA | 🟡 `mock` + `ollama` student; memory/LoRA later |
+| **3 – Dynamic envs** | Parametric sims from skill gaps | stub `src/bookworm/envs/` |
 | **4 – Embodiment** | Reachy Mini camera + desk demos | docs stub |
 
 ---
@@ -162,16 +170,17 @@ Or extend `src/bookworm/agents/student.py`. Keep **grading outside** the student
 
 ### Real book photos (local multimodal)
 
+Full guide: **[docs/READING.md](docs/READING.md)**.
+
 ```bash
-# 1) Photos of pages (phone is fine)
+# Offline: image + sidecar .md
+bookworm ingest-pages examples/sample_page_photo --backend mock --skills free_body
+
+# Local VLM (free)
+ollama pull moondream
 bookworm ingest-pages ./photos --backend ollama --skills free_body,newtons_2nd
-
-# Offline without a vision model: put page.md next to page.png
-bookworm ingest-pages ./photos --backend mock
+bookworm run --vision ollama
 ```
-
-This writes markdown notes + `pages.json` entries (and copies images into the domain).  
-During study: `bookworm run --vision ollama` re-reads pages that have `image_path`.
 
 ### Fine-tuning later (not day one)
 
@@ -207,7 +216,8 @@ Personal / research use of *your* books is the intended path. Don’t ship fine-
 
 ## Status
 
-**v0.1.0** — Phase 0 scaffold live on GitHub. Next: real page ingest + LLM student ([ROADMAP.md](ROADMAP.md)).
+**v0.1.0** — Scaffold + local multimodal page ingest on GitHub.  
+Next: richer memory / eval curves ([ROADMAP.md](ROADMAP.md)).
 
 ```bash
 git clone https://github.com/riacheruvu/bookworm-bot.git
