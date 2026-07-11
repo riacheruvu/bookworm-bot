@@ -38,7 +38,7 @@ python -m venv .venv
 # source .venv/bin/activate
 
 pip install -e ".[dev]"
-bookworm doctor   # checks free backends
+bookworm doctor   # checks free backends (text + vision)
 bookworm run      # mock student — $0, offline
 # or:
 python -m bookworm run --mode exploratory
@@ -50,7 +50,11 @@ Useful commands:
 bookworm domains
 bookworm run -d mechanics_demo -m serious
 bookworm run -m flexible --variants
-bookworm run --backend ollama   # optional free local LLM
+bookworm run --backend ollama          # optional free local LLM student
+bookworm ingest-pages examples/sample_page_photo --backend mock
+# ollama pull moondream  # once, free local VLM
+bookworm ingest-pages ./my_photos --backend ollama --skills free_body
+bookworm run --vision ollama           # study image_path pages with local VLM
 bookworm show-session data/sessions/<id>.json
 pytest
 ```
@@ -156,11 +160,18 @@ bookworm run --backend ollama
 
 Or extend `src/bookworm/agents/student.py`. Keep **grading outside** the student so it can’t mark its own homework. See [docs/LOCAL_STACK.md](docs/LOCAL_STACK.md).
 
-### Real book photos
+### Real book photos (local multimodal)
 
-1. Drop images under `data/domains/<domain>/pages/`  
-2. Set `image_path` in `pages.json`  
-3. Replace `extract_study_note` with a VLM call that returns summary / formulas / skills  
+```bash
+# 1) Photos of pages (phone is fine)
+bookworm ingest-pages ./photos --backend ollama --skills free_body,newtons_2nd
+
+# Offline without a vision model: put page.md next to page.png
+bookworm ingest-pages ./photos --backend mock
+```
+
+This writes markdown notes + `pages.json` entries (and copies images into the domain).  
+During study: `bookworm run --vision ollama` re-reads pages that have `image_path`.
 
 ### Fine-tuning later (not day one)
 

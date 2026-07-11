@@ -49,15 +49,17 @@ Cloud APIs are optional power-user extras only. Details: [docs/LOCAL_STACK.md](d
 - [x] Free backends: `mock` (default) + optional `ollama`
 - [x] `bookworm doctor` + [docs/LOCAL_STACK.md](docs/LOCAL_STACK.md)
 
-### Phase 1 — Real reading (next, still free)
+### Phase 1 — Real reading (local VLM first)
 
 **Goal:** drop phone photos of book pages and get structured study notes **without cloud bills**.
 
-- [ ] `Page.image_path` → OCR pipeline (Tesseract first)
-- [ ] Optional Ollama vision for diagrams
-- [ ] Page → skill tagging (manual seed + local model suggest)
+- [x] `Page.image_path` + local multimodal path (Ollama vision)
+- [x] Mock vision via image + `.md` sidecar (offline demos / CI)
+- [x] CLI: `bookworm ingest-pages ./photos/`
+- [x] `bookworm run --vision mock|ollama` when pages have images
+- [ ] Page → skill tagging polish (manual seed works via `--skills`)
 - [ ] Study notes quality checks (quiz-from-page consistency)
-- [ ] CLI: `bookworm ingest-pages ./photos/`
+- [ ] Optional Tesseract path for pure OCR
 
 **Success:** agent chooses pages for gaps; notes are faithful enough that practice gains track real content.
 

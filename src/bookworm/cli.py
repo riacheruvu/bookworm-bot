@@ -14,6 +14,7 @@ from bookworm.agents.student import BackendName, StudentAgent
 from bookworm.core.domain_loader import list_domains, load_domain
 from bookworm.core.loop import run_learning_loop, save_session
 from bookworm.models.probe import ProbeMode
+from bookworm.reading.vlm import VisionBackend
 
 app = typer.Typer(
     name="bookworm",
@@ -53,25 +54,144 @@ def doctor() -> None:
     """Check free local backends (no paid API keys required)."""
     console.print(Panel.fit("[bold]Bookworm doctor[/bold] — $0 path checks", border_style="cyan"))
     console.print("[green]✓[/green] mock student — always available (default)")
+    console.print("[green]✓[/green] mock vision — sidecar .md next to images")
     console.print("[green]✓[/green] demo domain files — use `bookworm domains`")
 
-    from bookworm.agents.ollama import check_ollama, ollama_model
+    from bookworm.agents.ollama import (
+        check_ollama,
+        check_ollama_vision,
+        ollama_model,
+        ollama_vision_model,
+    )
 
     ok, msg = check_ollama()
     if ok:
-        console.print(f"[green]✓[/green] ollama — {msg}")
-        console.print(f"  default model: [cyan]{ollama_model()}[/cyan]")
+        console.print(f"[green]✓[/green] ollama text — {msg}")
+        console.print(f"  text model: [cyan]{ollama_model()}[/cyan]")
         console.print("  try: [bold]bookworm run --backend ollama[/bold]")
     else:
-        console.print(f"[yellow]○[/yellow] ollama — {msg}")
+        console.print(f"[yellow]○[/yellow] ollama text — {msg}")
         console.print(
-            "  optional free upgrade: install from https://ollama.com "
-            "then `ollama pull llama3.2`"
+            "  optional: install https://ollama.com then "
+            "`ollama pull smollm2:360m`"
         )
+
+    vok, vmsg = check_ollama_vision()
+    if vok:
+        console.print(f"[green]✓[/green] ollama vision — {vmsg}")
+        console.print(f"  vision model: [cyan]{ollama_vision_model()}[/cyan]")
+        console.print(
+            "  try: [bold]bookworm ingest-pages ./photos --backend ollama[/bold]"
+        )
+    else:
+        console.print(f"[yellow]○[/yellow] ollama vision — {vmsg}")
+
     console.print(
         "\n[dim]Paid cloud APIs are intentionally optional. "
         "See docs/LOCAL_STACK.md[/dim]"
     )
+
+
+@app.command("ingest-pages")
+def ingest_pages(
+    source: Path = typer.Argument(..., help="Image file or folder of page photos"),
+    domain: str = typer.Option(
+        "mechanics_demo",
+        "--domain",
+        "-d",
+        help="Domain to write pages into",
+    ),
+    backend: VisionBackend = typer.Option(
+        "mock",
+        "--backend",
+        "-b",
+        help="Vision backend: mock (sidecar/offline) | ollama (local VLM)",
+    ),
+    skills: Optional[str] = typer.Option(
+        None,
+        "--skills",
+        "-s",
+        help="Comma-separated skill ids to tag (e.g. free_body,newtons_2nd)",
+    ),
+    model: Optional[str] = typer.Option(
+        None,
+        "--model",
+        help="Ollama vision model override",
+    ),
+    hint: str = typer.Option(
+        "",
+        "--hint",
+        help="Optional context for the VLM (chapter topic, etc.)",
+    ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Read pages but do not write into the domain",
+    ),
+    no_copy: bool = typer.Option(
+        False,
+        "--no-copy",
+        help="Do not copy images into data/domains/.../pages/images/",
+    ),
+) -> None:
+    """Read book page photos with a local multimodal model (or mock) and save notes."""
+    if backend == "ollama":
+        from bookworm.agents.ollama import check_ollama_vision
+
+        ok, msg = check_ollama_vision()
+        if not ok:
+            console.print(f"[red]Vision backend unavailable:[/red] {msg}")
+            console.print(
+                "Fall back: [bold]bookworm ingest-pages ... --backend mock[/bold] "
+                "(add a .md sidecar next to each image)"
+            )
+            raise typer.Exit(2)
+
+    skill_ids = [s.strip() for s in skills.split(",") if s.strip()] if skills else None
+
+    from bookworm.reading.ingest import ingest_images, save_notes_to_domain
+
+    console.print(
+        Panel.fit(
+            f"[bold]source[/bold]={source}  [bold]backend[/bold]={backend}  "
+            f"[bold]domain[/bold]={domain}",
+            title="ingest-pages",
+        )
+    )
+
+    try:
+        results = ingest_images(
+            source,
+            backend=backend,
+            skill_ids=skill_ids,
+            model=model,
+            extra_hint=hint,
+        )
+    except (FileNotFoundError, ValueError) as e:
+        console.print(f"[red]{e}[/red]")
+        raise typer.Exit(1) from e
+
+    for img, note in results:
+        console.print(f"\n[bold green]{img.name}[/bold green] → [cyan]{note.page_id}[/cyan]")
+        console.print(f"  title: {note.title}")
+        console.print(f"  summary: {note.summary[:200]}{'…' if len(note.summary) > 200 else ''}")
+        if note.key_ideas:
+            console.print(f"  ideas: {', '.join(note.key_ideas[:4])}")
+        if note.formulas:
+            console.print(f"  formulas: {', '.join(note.formulas[:4])}")
+
+    if dry_run:
+        console.print("\n[dim]dry-run: nothing written[/dim]")
+        return
+
+    written = save_notes_to_domain(
+        results,
+        domain,
+        copy_images=not no_copy,
+    )
+    console.print(f"\n[bold]Wrote[/bold] {len(written)} path(s) under domain [cyan]{domain}[/cyan]")
+    for p in written:
+        console.print(f"  • {p}")
 
 
 @app.command("run")
@@ -88,6 +208,11 @@ def run(
         "--backend",
         "-b",
         help="Student backend: mock (free default) | ollama (free local) | echo",
+    ),
+    vision: Optional[VisionBackend] = typer.Option(
+        None,
+        "--vision",
+        help="Study pages with vision when image_path is set: mock | ollama",
     ),
     probe_limit: int = typer.Option(6, "--probe-limit", help="Max probes in phase 1"),
     practice_limit: int = typer.Option(4, "--practice-limit", help="Max practice items"),
@@ -113,14 +238,24 @@ def run(
             console.print("Or see: [bold]docs/LOCAL_STACK.md[/bold]")
             raise typer.Exit(2)
 
+    if vision == "ollama":
+        from bookworm.agents.ollama import check_ollama_vision
+
+        ok, msg = check_ollama_vision()
+        if not ok:
+            console.print(f"[red]Vision unavailable:[/red] {msg}")
+            console.print("Use --vision mock or omit --vision (text pages only).")
+            raise typer.Exit(2)
+
     skills, bank, library = load_domain(domain)
     student = StudentAgent(backend=backend)
     out_dir = sessions_dir or _DEFAULT_SESSIONS
 
+    vision_label = vision or "off"
     console.print(
         Panel.fit(
             f"[bold]domain[/bold]={domain}  [bold]mode[/bold]={mode.value}  "
-            f"[bold]backend[/bold]={backend}\n"
+            f"[bold]backend[/bold]={backend}  [bold]vision[/bold]={vision_label}\n"
             f"skills={len(skills.skills)}  probes={len(bank.probes)}  pages={len(library.pages)}",
             title="Bookworm Bot",
         )
@@ -137,6 +272,7 @@ def run(
         max_study_pages=max_pages,
         allow_variants=allow_variants,
         sessions_dir=out_dir if save else None,
+        vision_backend=vision,
     )
 
     _print_session(session)

@@ -68,9 +68,32 @@ No account. No credit card. Models stay on disk.
 Phase 1 preference order:
 
 1. **Hand-typed / markdown pages** (already supported) — best quality/$  
-2. **Tesseract OCR** on phone photos — free, offline  
-3. **Ollama vision** (`llava`, `moondream`, etc.) — free, offline, better on diagrams  
-4. Cloud VLMs — only if you later want convenience  
+2. **Mock vision** — image + sidecar `.md` / `.txt` next to the photo  
+3. **Ollama vision** (`moondream`, `llava`, etc.) — free, offline multimodal  
+4. Tesseract / cloud VLMs — optional later  
+
+### Ingest page photos
+
+```bash
+# Offline: uses demo_fbd.md next to demo_fbd.png
+bookworm ingest-pages examples/sample_page_photo --backend mock
+
+# Local multimodal LLM
+ollama pull moondream
+bookworm doctor   # should show ollama vision ✓
+bookworm ingest-pages examples/sample_page_photo --backend ollama \
+  --skills free_body --hint "intro mechanics free-body diagrams"
+
+# During a learning run, re-read image_path pages with vision:
+bookworm run --vision mock
+bookworm run --vision ollama
+```
+
+Env override:
+
+```bash
+set BOOKWORM_OLLAMA_VISION_MODEL=moondream
+```
 
 ---
 

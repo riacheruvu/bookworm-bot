@@ -3,21 +3,33 @@
     {
       "id": "page_units",
       "title": "SI units in mechanics",
-      "skill_ids": ["units_si"],
-      "book_refs": ["page_units", "ch1.units"],
+      "skill_ids": [
+        "units_si"
+      ],
+      "book_refs": [
+        "page_units",
+        "ch1.units"
+      ],
       "image_path": null,
       "key_ideas": [
         "Mass uses kilogram (kg)",
-        "Force uses newton (N) = kg·m/s²",
+        "Force uses newton (N) = kg\u00b7m/s\u00b2",
         "Keep dimensions consistent before computing"
       ],
-      "formulas": ["1 N = 1 kg·m/s²"]
+      "formulas": [
+        "1 N = 1 kg\u00b7m/s\u00b2"
+      ]
     },
     {
       "id": "page_fbd",
       "title": "Free-body diagrams",
-      "skill_ids": ["free_body"],
-      "book_refs": ["page_fbd", "ch2.fbd"],
+      "skill_ids": [
+        "free_body"
+      ],
+      "book_refs": [
+        "page_fbd",
+        "ch2.fbd"
+      ],
       "key_ideas": [
         "Isolate one body",
         "Draw every external force at its point of action",
@@ -28,37 +40,79 @@
     {
       "id": "page_newton",
       "title": "Newton's second law",
-      "skill_ids": ["newtons_2nd"],
-      "book_refs": ["page_newton", "ch3.n2"],
+      "skill_ids": [
+        "newtons_2nd"
+      ],
+      "book_refs": [
+        "page_newton",
+        "ch3.n2"
+      ],
       "key_ideas": [
         "Net force equals mass times acceleration for constant mass",
         "Resolve forces into components before solving",
         "a = F_net / m"
       ],
-      "formulas": ["ΣF = m a", "a = F/m"]
+      "formulas": [
+        "\u03a3F = m a",
+        "a = F/m"
+      ]
     },
     {
       "id": "page_friction",
       "title": "Dry friction",
-      "skill_ids": ["friction_basic"],
-      "book_refs": ["page_friction", "ch4.friction"],
-      "key_ideas": [
-        "Static friction adjusts up to a maximum μ_s N",
-        "Sliding begins when required friction would exceed μ_s N",
-        "Kinetic friction ≈ μ_k N while sliding"
+      "skill_ids": [
+        "friction_basic"
       ],
-      "formulas": ["f_s ≤ μ_s N", "f_k = μ_k N"]
+      "book_refs": [
+        "page_friction",
+        "ch4.friction"
+      ],
+      "key_ideas": [
+        "Static friction adjusts up to a maximum \u03bc_s N",
+        "Sliding begins when required friction would exceed \u03bc_s N",
+        "Kinetic friction \u2248 \u03bc_k N while sliding"
+      ],
+      "formulas": [
+        "f_s \u2264 \u03bc_s N",
+        "f_k = \u03bc_k N"
+      ]
     },
     {
       "id": "page_energy",
       "title": "Work and kinetic energy",
-      "skill_ids": ["energy_work"],
-      "book_refs": ["page_energy", "ch5.energy"],
+      "skill_ids": [
+        "energy_work"
+      ],
+      "book_refs": [
+        "page_energy",
+        "ch5.energy"
+      ],
       "key_ideas": [
-        "Work by a constant force aligned with displacement is F·d",
+        "Work by a constant force aligned with displacement is F\u00b7d",
         "Net work changes kinetic energy"
       ],
-      "formulas": ["W = F d", "W_net = ΔK"]
+      "formulas": [
+        "W = F d",
+        "W_net = \u0394K"
+      ]
+    },
+    {
+      "id": "demo_fbd",
+      "title": "Free-body diagrams (sidecar for mock vision)",
+      "skill_ids": [
+        "free_body"
+      ],
+      "book_refs": [
+        "demo_fbd"
+      ],
+      "image_path": "images/demo_fbd.png",
+      "text": "",
+      "key_ideas": [
+        "Isolate one body",
+        "Draw every external force",
+        "Do not draw internal forces on a single rigid body"
+      ],
+      "formulas": []
     }
   ]
 }

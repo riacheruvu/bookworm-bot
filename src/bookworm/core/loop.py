@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from typing import TYPE_CHECKING
+
 from bookworm.agents.student import StudentAgent
 from bookworm.core.eval import did_improve, evaluate_session
 from bookworm.core.gap_assessor import diagnose_gaps, update_scores_from_attempts
@@ -13,6 +15,9 @@ from bookworm.models.probe import ProbeBank, ProbeMode
 from bookworm.models.session import LearningSession, SessionPhase
 from bookworm.models.skill import SkillGraph
 from bookworm.reading.page_ingest import PageLibrary
+
+if TYPE_CHECKING:
+    from bookworm.reading.vlm import VisionBackend
 
 
 def run_learning_loop(
@@ -27,10 +32,14 @@ def run_learning_loop(
     max_study_pages: int = 3,
     allow_variants: bool = False,
     sessions_dir: Path | str | None = None,
+    vision_backend: VisionBackend | None = None,
+    vision_model: str | None = None,
 ) -> LearningSession:
     """Full phase loop: probe → diagnose → study → practice → evaluate."""
     student = student or StudentAgent(backend="mock")
     session = LearningSession(domain=skill_graph.domain, mode=mode)
+    if vision_backend:
+        session.metadata["vision_backend"] = vision_backend
 
     # 1) Probe
     session.phase = SessionPhase.probe
@@ -55,8 +64,14 @@ def run_learning_loop(
     # 3) Study
     session.phase = SessionPhase.study
     build_study_plan(session, skill_graph, library)
-    run_study(session, library, max_pages=max_study_pages)
-    # Mock student "absorbs" notes into memory for better practice answers
+    run_study(
+        session,
+        library,
+        max_pages=max_study_pages,
+        vision_backend=vision_backend,
+        vision_model=vision_model,
+    )
+    # Student absorbs notes into memory for better practice answers
     student.ingest_study_notes(session.study_notes)
 
     # 4) Practice

@@ -2,26 +2,28 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
 from bookworm.models.session import StudyNote
 
+if TYPE_CHECKING:
+    from bookworm.reading.vlm import VisionBackend
+
 
 class Page(BaseModel):
     """A mocked 'physical' book page.
 
-    Later: image_path from camera / phone photo / Reachy Mini frame.
-    For v0 we ship markdown-ish text files as stand-ins for OCR/VLM output.
+    image_path: phone photo / screenshot / Reachy Mini frame (optional).
+    text: pre-extracted or hand-written page text (OCR/VLM output or markdown).
     """
 
     id: str
     title: str = ""
     skill_ids: list[str] = Field(default_factory=list)
     book_refs: list[str] = Field(default_factory=list)
-    # Path to image if you drop photos in (optional)
     image_path: str | None = None
-    # Pre-extracted or hand-written page text (OCR mock)
     text: str = ""
     key_ideas: list[str] = Field(default_factory=list)
     formulas: list[str] = Field(default_factory=list)
@@ -46,13 +48,11 @@ class PageLibrary(BaseModel):
         if not pages_dir.is_dir():
             return cls(pages=pages)
 
-        # Prefer pages.json index if present
         index = pages_dir / "pages.json"
         if index.is_file():
             raw = json.loads(index.read_text(encoding="utf-8"))
             for item in raw.get("pages", raw if isinstance(raw, list) else []):
                 page = Page.model_validate(item)
-                # Resolve relative image / sidecar text
                 if page.image_path and not Path(page.image_path).is_absolute():
                     candidate = pages_dir / page.image_path
                     if candidate.is_file():
@@ -63,7 +63,6 @@ class PageLibrary(BaseModel):
                 pages.append(page)
             return cls(pages=pages)
 
-        # Fallback: one .md file per page
         for md in sorted(pages_dir.glob("*.md")):
             pages.append(
                 Page(
@@ -76,12 +75,11 @@ class PageLibrary(BaseModel):
 
 
 def extract_study_note(page: Page, skill_ids: list[str] | None = None) -> StudyNote:
-    """Mock VLM/OCR study pass — structure a page into notes."""
+    """Text-only study pass (no vision)."""
     skills = skill_ids or page.skill_ids
     summary = page.text.strip().split("\n\n")[0][:400] if page.text else page.title
     key_ideas = list(page.key_ideas)
     if not key_ideas and page.text:
-        # crude bullets
         for line in page.text.splitlines():
             line = line.strip()
             if line.startswith(("- ", "* ")):
@@ -101,7 +99,17 @@ def study_pages_for_skills(
     library: PageLibrary,
     page_ids: list[str],
     skill_ids: list[str] | None = None,
+    *,
+    vision_backend: VisionBackend | None = None,
+    vision_model: str | None = None,
 ) -> list[StudyNote]:
+    """Build study notes for planned pages.
+
+    vision_backend:
+      None  — text/markdown only (default, free, stable)
+      mock  — if image present, use sidecar/mock vision
+      ollama — local multimodal LLM on page images
+    """
     notes: list[StudyNote] = []
     for pid in page_ids:
         page = library.get(pid)
@@ -115,5 +123,20 @@ def study_pages_for_skills(
                 )
             )
             continue
-        notes.append(extract_study_note(page, skill_ids=skill_ids or page.skill_ids))
+
+        if vision_backend and page.image_path and Path(page.image_path).is_file():
+            from bookworm.reading.vlm import read_page_image
+
+            notes.append(
+                read_page_image(
+                    page.image_path,
+                    backend=vision_backend,
+                    page_id=page.id,
+                    skill_ids=skill_ids or page.skill_ids,
+                    model=vision_model,
+                    extra_hint=page.title,
+                )
+            )
+        else:
+            notes.append(extract_study_note(page, skill_ids=skill_ids or page.skill_ids))
     return notes
