@@ -7,9 +7,13 @@
 > **Thesis:** Can an AI agent improve on a held-out skill suite by (1) failing probes, (2) selecting pages from a physical-style textbook (images/text mocks), (3) converting reading into practice, and (4) optionally adapting later (LoRA / memory) — without unrestricted web fine-tuning?
 
 **Repo:** https://github.com/riacheruvu/bookworm-bot  
-**Scope & phases:** [ROADMAP.md](ROADMAP.md) · **$0 / no API keys:** [docs/LOCAL_STACK.md](docs/LOCAL_STACK.md)
+**Scope & phases:** [ROADMAP.md](ROADMAP.md) · **$0 / no API keys:** [docs/LOCAL_STACK.md](docs/LOCAL_STACK.md) · **Demo copy:** [docs/DEMO.md](docs/DEMO.md)
 
 > **Stingy by design.** Default `mock` backend needs nothing. Optional free upgrade: local [Ollama](https://ollama.com). Paid cloud keys are never required.
+
+### Pitch
+
+Most “AI that reads” demos stuff a PDF into a chatbot. Bookworm Bot makes the agent **fail a quiz, study specific book pages, practice, and prove it got better** — gaps from failures, knowledge from pages, local-first.
 
 **Bookworm Bot** is a hackable scaffold for that loop:
 
