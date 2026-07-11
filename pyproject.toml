@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bookworm-bot"
+version = "0.1.0"
+description = "Teach an AI to learn by reading books: probe → gap assess → study pages → practice → get better."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Bookworm Bot contributors" }]
+keywords = ["ai", "agents", "learning", "books", "fine-tuning", "robotics"]
+dependencies = [
+  "pydantic>=2.0",
+  "pyyaml>=6.0",
+  "rich>=13.0",
+  "typer>=0.12",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.4"]
+# Future: vision / LLM backends
+vlm = []
+lora = []
+robot = []
+
+[project.scripts]
+bookworm = "bookworm.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bookworm"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""
+
+[tool.hatch.build.targets.sdist]
+include = ["src/bookworm", "data/domains", "README.md", "LICENSE"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

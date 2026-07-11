@@ -1,0 +1,31 @@
+domain: mechanics_demo
+skills:
+  - id: units_si
+    name: SI units & quantities
+    description: Identify base quantities and SI units for mechanics.
+    prerequisites: []
+    book_refs: [page_units]
+
+  - id: free_body
+    name: Free-body diagrams
+    description: Isolate a body and draw all external forces.
+    prerequisites: [units_si]
+    book_refs: [page_fbd]
+
+  - id: newtons_2nd
+    name: Newton's second law
+    description: Apply F = ma for constant mass; resolve components.
+    prerequisites: [free_body]
+    book_refs: [page_newton]
+
+  - id: friction_basic
+    name: Dry friction basics
+    description: Static vs kinetic friction; f ≤ μN.
+    prerequisites: [free_body, newtons_2nd]
+    book_refs: [page_friction]
+
+  - id: energy_work
+    name: Work–energy
+    description: Work by a force; kinetic energy change.
+    prerequisites: [newtons_2nd]
+    book_refs: [page_energy]

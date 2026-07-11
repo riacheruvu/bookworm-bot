@@ -1,0 +1,64 @@
+{
+  "pages": [
+    {
+      "id": "page_units",
+      "title": "SI units in mechanics",
+      "skill_ids": ["units_si"],
+      "book_refs": ["page_units", "ch1.units"],
+      "image_path": null,
+      "key_ideas": [
+        "Mass uses kilogram (kg)",
+        "Force uses newton (N) = kg·m/s²",
+        "Keep dimensions consistent before computing"
+      ],
+      "formulas": ["1 N = 1 kg·m/s²"]
+    },
+    {
+      "id": "page_fbd",
+      "title": "Free-body diagrams",
+      "skill_ids": ["free_body"],
+      "book_refs": ["page_fbd", "ch2.fbd"],
+      "key_ideas": [
+        "Isolate one body",
+        "Draw every external force at its point of action",
+        "Do not draw internal forces for a single rigid body"
+      ],
+      "formulas": []
+    },
+    {
+      "id": "page_newton",
+      "title": "Newton's second law",
+      "skill_ids": ["newtons_2nd"],
+      "book_refs": ["page_newton", "ch3.n2"],
+      "key_ideas": [
+        "Net force equals mass times acceleration for constant mass",
+        "Resolve forces into components before solving",
+        "a = F_net / m"
+      ],
+      "formulas": ["ΣF = m a", "a = F/m"]
+    },
+    {
+      "id": "page_friction",
+      "title": "Dry friction",
+      "skill_ids": ["friction_basic"],
+      "book_refs": ["page_friction", "ch4.friction"],
+      "key_ideas": [
+        "Static friction adjusts up to a maximum μ_s N",
+        "Sliding begins when required friction would exceed μ_s N",
+        "Kinetic friction ≈ μ_k N while sliding"
+      ],
+      "formulas": ["f_s ≤ μ_s N", "f_k = μ_k N"]
+    },
+    {
+      "id": "page_energy",
+      "title": "Work and kinetic energy",
+      "skill_ids": ["energy_work"],
+      "book_refs": ["page_energy", "ch5.energy"],
+      "key_ideas": [
+        "Work by a constant force aligned with displacement is F·d",
+        "Net work changes kinetic energy"
+      ],
+      "formulas": ["W = F d", "W_net = ΔK"]
+    }
+  ]
+}

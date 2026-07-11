@@ -1,0 +1,101 @@
+{
+  "domain": "mechanics_demo",
+  "probes": [
+    {
+      "id": "si_force",
+      "prompt": "What is the SI unit of force?",
+      "skill_ids": ["units_si"],
+      "expected_answer": "newton",
+      "acceptable_answers": ["N", "newton", "newtons"],
+      "difficulty": 1,
+      "book_refs": ["page_units"]
+    },
+    {
+      "id": "si_mass",
+      "prompt": "What is the SI unit of mass?",
+      "skill_ids": ["units_si"],
+      "expected_answer": "kilogram",
+      "acceptable_answers": ["kg", "kilogram", "kilograms"],
+      "difficulty": 1,
+      "book_refs": ["page_units"]
+    },
+    {
+      "id": "fbd_what",
+      "prompt": "In one short phrase: what does a free-body diagram show?",
+      "skill_ids": ["free_body"],
+      "expected_answer": "all external forces on an isolated body",
+      "acceptable_answers": [
+        "all external forces on an isolated body",
+        "external forces on one body",
+        "forces acting on an isolated object"
+      ],
+      "difficulty": 2,
+      "book_refs": ["page_fbd"],
+      "allow_agent_variants": true
+    },
+    {
+      "id": "fbd_internal",
+      "prompt": "Should internal forces within a single rigid body appear on its free-body diagram? (yes/no)",
+      "skill_ids": ["free_body"],
+      "expected_answer": "no",
+      "acceptable_answers": ["no", "n"],
+      "difficulty": 2,
+      "book_refs": ["page_fbd"]
+    },
+    {
+      "id": "n2_formula",
+      "prompt": "Write Newton's second law for constant mass (vector form is fine as F=ma).",
+      "skill_ids": ["newtons_2nd"],
+      "expected_answer": "F=ma",
+      "acceptable_answers": ["F=ma", "F = ma", "ΣF=ma", "sum F = ma"],
+      "difficulty": 1,
+      "book_refs": ["page_newton"]
+    },
+    {
+      "id": "n2_accel",
+      "prompt": "A 2 kg block has net force 10 N along x. What is its acceleration in m/s^2?",
+      "skill_ids": ["newtons_2nd", "units_si"],
+      "expected_answer": "5",
+      "acceptable_answers": ["5", "5.0", "5 m/s^2", "5 m/s²"],
+      "difficulty": 2,
+      "book_refs": ["page_newton"]
+    },
+    {
+      "id": "friction_static_max",
+      "prompt": "Maximum static friction magnitude is (symbol form using mu_s and N)?",
+      "skill_ids": ["friction_basic"],
+      "expected_answer": "mu_s N",
+      "acceptable_answers": ["mu_s N", "μ_s N", "μs N", "mu_s*N", "μ_sN"],
+      "difficulty": 2,
+      "book_refs": ["page_friction"]
+    },
+    {
+      "id": "friction_kinetic",
+      "prompt": "Kinetic friction on a sliding block is usually modeled as (mu_k * N or less than mu_s * N)? Answer: mu_k * N",
+      "skill_ids": ["friction_basic"],
+      "expected_answer": "mu_k * N",
+      "acceptable_answers": ["mu_k * N", "μ_k N", "mu_k N", "μk N"],
+      "difficulty": 2,
+      "book_refs": ["page_friction"]
+    },
+    {
+      "id": "work_def",
+      "prompt": "Work by a constant force F along displacement d (same direction) equals?",
+      "skill_ids": ["energy_work"],
+      "expected_answer": "F*d",
+      "acceptable_answers": ["F*d", "Fd", "F d", "F·d"],
+      "difficulty": 2,
+      "book_refs": ["page_energy"]
+    },
+    {
+      "id": "explore_friction_story",
+      "prompt": "Invent a short desk-toy scenario where static friction matters, then state what would make the toy start sliding.",
+      "skill_ids": ["friction_basic", "free_body"],
+      "difficulty": 3,
+      "modes": ["exploratory", "flexible"],
+      "allow_agent_variants": true,
+      "rubric": "Mentions opposing motion tendency; sliding when applied force exceeds max static friction.",
+      "book_refs": ["page_friction"]
+    }
+  ]
+}

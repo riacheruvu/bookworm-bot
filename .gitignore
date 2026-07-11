@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Session outputs (keep the folder)
+data/sessions/*
+!data/sessions/.gitkeep
+
+# Secrets / local overrides
+.env
+.env.*
+!.env.example
+*.local.yaml
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Model artifacts (LoRA etc.)
+artifacts/
+adapters/
+*.safetensors
+*.bin
+*.pt
+*.gguf
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
