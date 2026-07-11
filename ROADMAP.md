@@ -8,6 +8,16 @@ probe → diagnose gaps → study pages → practice → evaluate
          (+ optional env / robot later)
 ```
 
+### Constraint: stingy / $0 first
+
+**Paid API keys are never required.** Happy path:
+
+1. **mock student** (default) — works offline, $0  
+2. **Ollama** — free local LLM when you want real answers  
+3. **Local OCR / VLM** — Tesseract, Ollama vision, etc.  
+
+Cloud APIs are optional power-user extras only. Details: [docs/LOCAL_STACK.md](docs/LOCAL_STACK.md).
+
 ---
 
 ## In scope (product)
@@ -17,10 +27,11 @@ probe → diagnose gaps → study pages → practice → evaluate
 | Skill graphs + probe banks | Full textbook OCR product |
 | Mock + real page intake (images) | Training frontier foundation models |
 | Gap diagnosis from **failures** | Relying on “I feel weak at X” self-report |
-| Memory / notes / optional LoRA with eval gates | Unrestricted web fine-tune as default |
+| Memory / notes / optional **local** LoRA with eval gates | Unrestricted web fine-tune as default |
 | Parametric practice envs | Free-form “invent any universe” sims day one |
 | Reachy Mini as camera + social UI | Full mobile manipulator research stack |
 | Serious / exploratory / flexible probe modes | Shipping copyrighted book weights |
+| Free local backends (mock, Ollama) | Required OpenAI/Anthropic keys |
 
 ---
 
@@ -35,28 +46,30 @@ probe → diagnose gaps → study pages → practice → evaluate
 - [x] Demo domain `mechanics_demo`
 - [x] Session JSON persistence
 - [x] Tests for grading + loop
+- [x] Free backends: `mock` (default) + optional `ollama`
+- [x] `bookworm doctor` + [docs/LOCAL_STACK.md](docs/LOCAL_STACK.md)
 
-### Phase 1 — Real reading (next)
+### Phase 1 — Real reading (next, still free)
 
-**Goal:** drop phone photos of book pages and get structured study notes.
+**Goal:** drop phone photos of book pages and get structured study notes **without cloud bills**.
 
-- [ ] `Page.image_path` → VLM/OCR pipeline (pluggable backend)
-- [ ] Layout-aware extraction: text, captions, equations
-- [ ] Page → skill tagging (manual seed + model suggest)
+- [ ] `Page.image_path` → OCR pipeline (Tesseract first)
+- [ ] Optional Ollama vision for diagrams
+- [ ] Page → skill tagging (manual seed + local model suggest)
 - [ ] Study notes quality checks (quiz-from-page consistency)
 - [ ] CLI: `bookworm ingest-pages ./photos/`
 
 **Success:** agent chooses pages for gaps; notes are faithful enough that practice gains track real content.
 
-### Phase 2 — Better students
+### Phase 2 — Better students (local-first)
 
-**Goal:** replace mock student without breaking the measurement loop.
+**Goal:** smarter student without breaking measurement or requiring paid keys.
 
-- [ ] LLM student backend (API + local)
-- [ ] External judge for exploratory probes (rubric grading)
+- [x] Free local LLM backend (Ollama)
+- [ ] External judge via Ollama for exploratory probes
 - [ ] Persistent memory store (notes, formulas, worked examples)
-- [ ] Optional LoRA / adapter path with **promote-only-if-eval-wins**
-- [ ] Web fallback **gated** (only after book plan fails)
+- [ ] Optional **local** LoRA with **promote-only-if-eval-wins**
+- [ ] Web fallback **gated** (only after book plan fails; still optional)
 
 **Success:** held-out serious-mode accuracy rises across sessions; exploratory stays fun without polluting metrics.
 
@@ -90,14 +103,14 @@ probe → diagnose gaps → study pages → practice → evaluate
 
 **P0 — this week energy**
 
-1. Push + polish GitHub README / topics  
-2. LLM student adapter behind env vars  
+1. Polish GitHub README / topics  
+2. ~~LLM student~~ → free **Ollama** backend + mock default (done)  
 3. `bookworm report <session.json>` richer CLI  
 4. Second domain (pick one): electronics, Python, or probability  
 
 **P1 — next**
 
-5. Image page ingest (local VLM or API)  
+5. Image page ingest (**Tesseract / Ollama vision** — not paid APIs)  
 6. Skill heatmap HTML export  
 7. Probe authoring helper (`bookworm new-probe`)  
 8. Eval harness: multi-session learning curves  

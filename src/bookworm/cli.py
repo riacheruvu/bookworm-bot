@@ -10,7 +10,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from bookworm import __version__
-from bookworm.agents.student import StudentAgent
+from bookworm.agents.student import BackendName, StudentAgent
 from bookworm.core.domain_loader import list_domains, load_domain
 from bookworm.core.loop import run_learning_loop, save_session
 from bookworm.models.probe import ProbeMode
@@ -48,6 +48,32 @@ def domains() -> None:
         console.print(f" • {name}")
 
 
+@app.command("doctor")
+def doctor() -> None:
+    """Check free local backends (no paid API keys required)."""
+    console.print(Panel.fit("[bold]Bookworm doctor[/bold] — $0 path checks", border_style="cyan"))
+    console.print("[green]✓[/green] mock student — always available (default)")
+    console.print("[green]✓[/green] demo domain files — use `bookworm domains`")
+
+    from bookworm.agents.ollama import check_ollama, ollama_model
+
+    ok, msg = check_ollama()
+    if ok:
+        console.print(f"[green]✓[/green] ollama — {msg}")
+        console.print(f"  default model: [cyan]{ollama_model()}[/cyan]")
+        console.print("  try: [bold]bookworm run --backend ollama[/bold]")
+    else:
+        console.print(f"[yellow]○[/yellow] ollama — {msg}")
+        console.print(
+            "  optional free upgrade: install from https://ollama.com "
+            "then `ollama pull llama3.2`"
+        )
+    console.print(
+        "\n[dim]Paid cloud APIs are intentionally optional. "
+        "See docs/LOCAL_STACK.md[/dim]"
+    )
+
+
 @app.command("run")
 def run(
     domain: str = typer.Option("mechanics_demo", "--domain", "-d", help="Domain folder name"),
@@ -56,6 +82,12 @@ def run(
         "--mode",
         "-m",
         help="Probe seriousness: serious | exploratory | flexible",
+    ),
+    backend: BackendName = typer.Option(
+        "mock",
+        "--backend",
+        "-b",
+        help="Student backend: mock (free default) | ollama (free local) | echo",
     ),
     probe_limit: int = typer.Option(6, "--probe-limit", help="Max probes in phase 1"),
     practice_limit: int = typer.Option(4, "--practice-limit", help="Max practice items"),
@@ -71,13 +103,24 @@ def run(
     save: bool = typer.Option(True, "--save/--no-save", help="Persist session JSON"),
 ) -> None:
     """Run one full learning loop on a domain."""
+    if backend == "ollama":
+        from bookworm.agents.ollama import check_ollama
+
+        ok, msg = check_ollama()
+        if not ok:
+            console.print(f"[red]Ollama backend unavailable:[/red] {msg}")
+            console.print("Fall back with: [bold]bookworm run --backend mock[/bold]")
+            console.print("Or see: [bold]docs/LOCAL_STACK.md[/bold]")
+            raise typer.Exit(2)
+
     skills, bank, library = load_domain(domain)
-    student = StudentAgent(backend="mock")
+    student = StudentAgent(backend=backend)
     out_dir = sessions_dir or _DEFAULT_SESSIONS
 
     console.print(
         Panel.fit(
-            f"[bold]domain[/bold]={domain}  [bold]mode[/bold]={mode.value}\n"
+            f"[bold]domain[/bold]={domain}  [bold]mode[/bold]={mode.value}  "
+            f"[bold]backend[/bold]={backend}\n"
             f"skills={len(skills.skills)}  probes={len(bank.probes)}  pages={len(library.pages)}",
             title="Bookworm Bot",
         )

@@ -1,3 +1,3 @@
-from bookworm.agents.student import StudentAgent
+from bookworm.agents.student import BackendName, StudentAgent
 
-__all__ = ["StudentAgent"]
+__all__ = ["BackendName", "StudentAgent"]

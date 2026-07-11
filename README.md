@@ -7,7 +7,9 @@
 > **Thesis:** Can an AI agent improve on a held-out skill suite by (1) failing probes, (2) selecting pages from a physical-style textbook (images/text mocks), (3) converting reading into practice, and (4) optionally adapting later (LoRA / memory) — without unrestricted web fine-tuning?
 
 **Repo:** https://github.com/riacheruvu/bookworm-bot  
-**Scope & phases:** see [ROADMAP.md](ROADMAP.md)
+**Scope & phases:** [ROADMAP.md](ROADMAP.md) · **$0 / no API keys:** [docs/LOCAL_STACK.md](docs/LOCAL_STACK.md)
+
+> **Stingy by design.** Default `mock` backend needs nothing. Optional free upgrade: local [Ollama](https://ollama.com). Paid cloud keys are never required.
 
 **Bookworm Bot** is a hackable scaffold for that loop:
 
@@ -32,7 +34,8 @@ python -m venv .venv
 # source .venv/bin/activate
 
 pip install -e ".[dev]"
-bookworm run
+bookworm doctor   # checks free backends
+bookworm run      # mock student — $0, offline
 # or:
 python -m bookworm run --mode exploratory
 ```
@@ -43,6 +46,7 @@ Useful commands:
 bookworm domains
 bookworm run -d mechanics_demo -m serious
 bookworm run -m flexible --variants
+bookworm run --backend ollama   # optional free local LLM
 bookworm show-session data/sessions/<id>.json
 pytest
 ```
@@ -91,9 +95,9 @@ bookworm-bot/
 
 | Phase | Goal | Status in repo |
 |-------|------|----------------|
-| **0 – Scaffold** | Runnable loop + demo domain | ✅ you are here |
-| **1 – Real reading** | Page images → VLM/OCR → structured notes | hooks ready (`Page.image_path`) |
-| **2 – Better students** | LLM backend, memory store, optional LoRA with eval gates | `StudentAgent.backend` |
+| **0 – Scaffold** | Runnable loop + demo domain + $0 backends | ✅ you are here |
+| **1 – Real reading** | Page images → local OCR/VLM → notes | hooks ready (`Page.image_path`) |
+| **2 – Better students** | Ollama/mock, memory, optional local LoRA | `mock` + `ollama` backends |
 | **3 – Dynamic envs** | Parametric sims from skill gaps | `src/bookworm/envs/` |
 | **4 – Embodiment** | Reachy Mini camera + desk demos | docs stub |
 
@@ -139,12 +143,14 @@ bookworm run -d my_domain
 
 ## Hacking guide
 
-### Swap in a real model
+### Swap in a real model (still free)
 
-Edit / extend `src/bookworm/agents/student.py`:
+```bash
+# optional: https://ollama.com + `ollama pull llama3.2`
+bookworm run --backend ollama
+```
 
-- Add `backend="openai"` (or local llama.cpp, etc.)  
-- Keep **grading outside** the student so it can’t mark its own homework  
+Or extend `src/bookworm/agents/student.py`. Keep **grading outside** the student so it can’t mark its own homework. See [docs/LOCAL_STACK.md](docs/LOCAL_STACK.md).
 
 ### Real book photos
 
